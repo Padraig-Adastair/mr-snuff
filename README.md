@@ -1,2 +1,2 @@
-# snuff-store-uk
+# mr-snuff
 Test site for mrsnuff.com
