@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="{{ shop.locale }}" class="fonts-loading">
+  <head>
+{% assign mlveda_code_flag = true %}
+  
+  {% if mlveda_code_flag == true %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script>
+    <script>
+      	$m = $.noConflict(true);
+	 window.pattern = /^(do|sv|ee|fi|fr|gd|gp|gg|hu|is|im|il|kz|ke|kg|la|mo|mk|mh|mq|ms|ma|nl|ne|ng|no|pw|py|pl|pt|kn|st|sc|sg|sk|za|sr|sj|th|to|tm|tc|uz|vu|vn|zm|af|al|as|ao|ai|an|ag|ar|as|bb|by|aq|bm|bq|bv|au|vg|bs|cv|bh|cf|bd|cn|be|co|ba|ci|bw|dk|bn|dm|bi|cd|cm|ec|ca|eg|td|gq|cx|er|cc|et|cr|eu|ga|gh|cy|gi|dj|gu|eu|gt|fk|gn|fo|gw|gf|hm|pf|hn|gm|iq|ge|ie|de|jm|gr|jp|in|ki|id|lr|je|mw|lv|my|ly|mu|li|yt|mv|mx|mc|mn|mz|nr|np|ni|nu|nf|pk|na|ph|oc|pn|om|qa|pg|re|pr|sh|ro|ru|rw|sm|bl|rs|pm|sx|vc|gs|sa|sd|sl|se|si|tj|tz|sb|tt|sa|tn|es|gb|lk|va|ch|zw|sy|tw|tl|tg|tr|um|vi|ug|us|uy|ve|af|ax|dz|ad|am|aw|at|az|bz|bj|bt|bo|br|io|bg|bf|kh|ky|cl|km|cg|ck|hr|cu|cw|cz|fj|tf|gl|gy|ht|hk|ir|it|jo|kw|lb|ls|lt|lu|mg|ml|mt|mr|fm|md|me|mm|na|nc|nz|kp|mp|ps|pa|pe|lc|mf|ws|sn|so|kr|ss|sz|tk|tv|ua|ae|wf|eh|ye|intl)$/;
+      </script>
+
+  {% endif %}
+    {% include 'head' %}    
+    {{ content_for_header }}       
+    {% include "loyaltylion" %}
+    
+{% if mlveda_code_flag == true %}
+  		{% include 'mlveda-multipricing-options' %}
+  {% endif %}
+  
+</head>
+  <body data-section-type="main-body">
+    
+    <div id="ajaxBusy" style="background:#fff;content:'';height:100%;margin:0px;padding:0px;position:fixed;right:0;top:0;width:100%;z-index: 999999;"><div class="fancybox-loading"></div></div>
+    
+    <a href="#content" class="hidden btn outline skip-to">{{ 'layout.general.skipto' | t }}</a>
+
+    {% include 'no-script' %}
+
+    {% section 'header' %}
+    {% section 'header-announcement' %}
+    
+    <div id="content" class="content {% if request.page_type != blank %}{{ request.page_type | split: '/' | first | replace: '404', 'error' }}{% else %}default{% endif %}-page{% if template.suffix != blank %} {{ template.suffix }}{% endif %}" role="main">      
+      {% if mlveda_code_flag == false %}
+          	{{ content_for_layout }}	
+          {% endif %}
+
+          {% if mlveda_code_flag == true %}
+          <div class="mlvedaform">
+            {{ content_for_layout }}
+          </div>
+          	{% include 'mlveda-multipricing-selectBox' %}
+
+          	{% include 'mlveda-multipricing-selectors' %}
+          {% endif %}
+    </div>
+    
+    {% section 'footer-brands' %}
+
+    <footer>
+      {% section 'footer' %}
+    </footer>
+
+  {% if mlveda_code_flag == true %}
+  	{% if template != 'cart' %}
+		{% include 'mlveda-multipricing-updateprice' %}
+  	{% else %}
+        <script>mlvedaFlagCalled = true;</script>
+  	{% endif %}
+  {% else %}
+		<script>mlvedaFlagCalled = true;</script>
+  {% endif %}
+{% include 'mlveda-currencies-switcher' %}{% include 'mlveda-currencies' %}{% include 'mlveda-flag' %}{% include 'mlveda-currencies-style' %}</body>
+</html
+<!-- Added by AVADA SEO Suite -->
+{% include 'avada-seo' %}
+<!-- /Added by AVADA SEO Suite -->
+>

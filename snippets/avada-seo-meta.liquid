@@ -1,0 +1,20 @@
+{% if request.page_type == 'product' %}
+{%- capture avada_seo_meta_title -%}Buy {{ product.title }} Online - Shop For Tobacco Products - MrSnuff{%- endcapture -%}
+{%- capture avada_seo_meta_description -%}⚡️ Buy {{ product.title }} at the lowest price in {{ shop.address.country }}. Check reviews and buy {{ product.title }} today. ✓ Only Genuine Products ✓ Highest Rated ✓ Worldwide Shipping. Find your favourite nasal snuff chew bags snus and other nicotine and tobacco products here with MrSnuff Online{%- endcapture -%}
+{% endif %}
+
+{% if request.page_type == 'collection' %}
+{%- capture avada_seo_meta_title -%}Shop {{ collection.title }} Online - Find the best tobacco products - MrSnuff{%- endcapture -%}
+{%- capture avada_seo_meta_description -%}Buy {{ collection.title }} at {{ shop.name }}. Check Price and Buy Online. ✓ Worldwide Shipping ✓ Best Rated ✓ Best Offers. Shop for your favourite nicotine and tobacco products including nasal snuff tobacco, chew bags and much more here at MrSnuff Online.{%- endcapture -%}
+{% endif %}
+
+{% if avada_seo_meta_title %}
+{%- assign seo_title = avada_seo_meta_title | strip_html | strip | truncate: 80 -%}
+{%- assign page_title = seo_title -%}
+{%- assign og_title = seo_title -%}
+{% endif %}
+
+{% if avada_seo_meta_description %}
+{%- assign page_description = avada_seo_meta_description | strip_html | strip | truncate: 200 -%}
+{%- assign og_description = page_description -%}
+{% endif %}

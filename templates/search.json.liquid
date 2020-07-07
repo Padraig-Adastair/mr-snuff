@@ -1,0 +1,50 @@
+{% layout none %}
+{%- capture results -%}
+
+{%- assign search_results = search.results | sort: 'object_type' | reverse -%}
+
+  {% for line_item in search_results %}
+
+    {% if line_item.object_type == 'product' %}
+    {%- assign product = line_item -%}
+    { 
+	"category" : {{ line_item.object_type | json }},
+    "title"    : {{ product.title | json }},
+    "price"    : {{ product.price | json }},
+    "vendor"    : {{ product.vendor | json }},
+    "url"      : {{ product.url | within: product.collections.last | json }},
+    "thumbnail": {{ product.featured_media | img_url: '200x' | json }}
+    }
+    {% elsif line_item.object_type == 'collection' %}
+    {%- assign collection = line_item -%}
+    { 
+	"category" : {{ line_item.object_type | json }},
+    "title"    : {{ collection.title | json }},
+    "url"      : {{ collection.url | json }},
+    "thumbnail": {{ collection.image.src | img_url: '200x' | json }}
+    }
+    {% elsif line_item.object_type == 'page' %}
+    {%- assign page = line_item -%}
+    { 
+	"category" : {{ line_item.object_type | json }},
+    "title"    : {{ page.title | json }},
+    "url"      : {{ page.url | json }},
+    "thumbnail": {{ page.image.src | img_url: '200x' | json }}
+    }
+    {% elsif line_item.object_type == 'article' %}
+    {%- assign article = line_item -%}
+    { 
+	"category" : {{ line_item.object_type | json }},
+    "title"    : {{ article.title | json }},
+    "url"      : {{ article.url | json }},
+    "thumbnail": {{ article.image.src | img_url: '200x' | json }}
+    }
+    {% endif %}
+
+    {% unless forloop.last %},{% endunless %}
+  {% endfor %}
+{%- endcapture -%}
+{
+  "results_count": {{ search.results_count }},
+  "results": [{{ results }}]
+}

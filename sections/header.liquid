@@ -1,0 +1,598 @@
+<div data-section-id="{{ section.id }}"  
+     data-section-type="header-section"
+     class="clearfix"> 
+  <header>
+    
+    <div class="header-toolbar{% if section.settings.use_sticky %} sticky{% endif %} open-container">
+
+      <div class="header-customerbar {% if section.settings.include_customerbar_border %}include-border {% endif %}customer_color_scheme">
+        <div class="container full clearfix">
+          <div class="header-customerbar-container table">
+            {% if section.blocks != blank %}
+            <div class="customer-bullets table-cell">
+              <ul>
+                {% for block in section.blocks limit: 1 %}
+                <li class="first"{{ block.shopify_attributes }}>{% if block.settings.info_bullets != blank %}{{ block.settings.info_bullets }}{% else %}<p>{{ 'homepage.onboarding.promo_no_title' | t }}</p>{% endif %}</li>
+                {% endfor %}
+                {% if section.blocks.size > 1 %}
+                <div class="open-container-bullets">
+                  <a href="javascript:void(0)" class="open open-btn open-bullets" title="{{ 'collections.general.open' | t }}" aria-controls="bullets" role="button" aria-label="{{ 'collections.general.open' | t }}"><span class="icon icon-plus btn text-center"></span></a>
+                  <div id="bullets" class="open-slide-bullets">
+                    {% for block in section.blocks offset: 1 %}
+                    <li class="borders" {{ block.shopify_attributes }}>{% if block.settings.info_bullets != blank %}{{ block.settings.info_bullets }}{% else %}<p>{{ 'homepage.onboarding.promo_no_title' | t }}</p>{% endif %}</li>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endif %} 
+              </ul>
+            </div>
+            {% endif %}            
+            <div class="customer-links table-cell text-right">
+              <ul role="navigation" role="menubar" aria-Label="{{ 'layout.general.nav_customer' | t }}">
+                <li class="search"><a href="javascript:void(0)" class="open open-{{ section.id }}" title="{{ 'general.search.title' | t }}" role="menuitem"><span class="icon icon-search" aria-label="{{ 'general.search.title' | t }}"></span></a></li>
+                <li id="cart-count-desktop" class="cart-count cart-info"{% if cart.item_count > 0 %} role="menuitem" aria-haspopup="true" aria-expanded="false"{% endif %}>
+                  <a href="{{ routes.cart_url }}" title="{{ 'layout.cart.title' | t }}" class="relative" role="button" aria-label="{{ 'layout.cart.title' | t }}" aria-expanded="false" aria-haspopup="true"><span><span class="icon icon-cart relative"></span> <span class="cartCountSelector">{{ cart.item_count }}</span> • <span class="cartTotalSelector">{{ cart.total_price | money }}</span></span></a>
+                  <span id="cart-dropdown-span">
+                    {% if cart.item_count > 0 %}
+                    <ul id="cart-dropdown"{% if shop.customer_accounts_enabled %} class="account-active"{% endif %} role="menu" aria-hidden="true" aria-label="{{ 'layout.general.nav_sub' | t }}">
+                      {% for line_item in cart.items limit: '2' %}
+                      <li class="clearfix cart-dropdown-product{% if forloop.last %} last{% endif %}">
+                        <div class="table-center item item-row clearfix">
+
+                          {% if line_item.variant.featured_media %}
+                          {% assign line_item_featured_media = line_item.variant.featured_media %}
+                          {% elsif line_item.product.featured_media %}
+                          {% assign line_item_featured_media = line_item.product.featured_media %}
+                          {% endif %}
+
+                          {% if line_item_featured_media %}
+                          <div class="five negative-left item-thumb title-align title-align-left">
+                            <div class="relative">     
+                              {%- capture id -%}{{ line_item.id }}{%- endcapture -%}
+                              {%- assign img_src = line_item_featured_media -%}                             
+                              {%- assign size = 180 -%}
+                              {%- capture alt -%}{{ line_item.title | escape }}{%- endcapture -%}
+                              <a href="{{ line_item.variant.url | within: collections.all }}" title="{{ line_item.title }}" class="img-align">
+                                {% include 'image-load' %}
+                              </a>
+                            </div>
+                          </div>
+                          {% endif %}
+                          <div class="{% if line_item_featured_media %}seven{% else %}twelve negative-left{% endif %} negative-right">
+                            <div class="item-title"><h5><a href="{{ line_item.variant.url | within: collections.all }}" title="{{ line_item.title }}">{{ line_item.product.title }}{% if line_item.variant.title and line_item.variant.title != 'Default Title' %}<br/><small>{{ line_item.variant.title }}</small>{% endif %}</a></h5></div>
+                            {% if settings.reviews_enable %}
+                            <div class="reviews item-reviews">
+                              <!-- To add a new review app, install code between the comments -->
+                              <span class="shopify-product-reviews-badge" data-id="{{ line_item.product.id }}"></span>
+                              <!-- End comments -->
+                            </div>
+                            {% endif %}
+                            <div class="product-price">
+                              <h6>{% if line_item.price > 0 %}{{ line_item.price | money }} {{ 'cart.general.each' | t }}{% else %}{{ 'products.product.free' | t }}{% endif %}{% include 'product-unit-price', variant: line_item %}{% if line_item.line_level_discount_allocations != blank %}<small>{% for discount_allocation in line_item.line_level_discount_allocations %}<br/>{{ discount_allocation.discount_application.title }}: {{ discount_allocation.amount | money | prepend: '-'  }}{% endfor %}</small>{% endif %}</h6>
+                            </div>
+                            <p><span class="total-item-{{ line_item.id}} vendors">{{ 'cart.general.carttotal' | t }} {{ line_item.line_price | money }}{% if line_item.total_discount > 0 %} <s>{{ line_item.original_line_price | money }}</s>{% endif %}</span></p>
+                          </div>
+                        </div> 
+                      </li>
+                      {% endfor %}
+
+                      {%- assign loop_index = 1 -%}
+                      {% for line_item in cart.items %}                    
+                      {%- capture total -%}{{ loop_index }}{%- endcapture -%}   
+                      {%- capture loop_index -%}{{ loop_index | plus:1 }}{%- endcapture -%}
+                      {% endfor %}
+
+                      {%- assign new_total = total | plus:0 -%}
+                      {% if new_total > 2 %}                    
+                      {%- assign total_count = total | minus: '2' -%}                    
+                      <li class="clearfix"><div class="bottompad-half"><p>{{ 'layout.cart.total_count' | t: total_count: total_count }}</p></div></li>
+                      {% endif %}
+
+                      <li class="clearfix">
+                        <div class="six negative-left">
+                          <form action="{{ routes.cart_url }}">
+                            <input type="submit" value="{{ 'products.product.ajax_view' | t }}" class="btn auto-full-width outline" />
+                          </form>
+                        </div>
+                        <div class="six negative-right">
+                          <form action="{{ routes.cart_url }}" method="post">
+                            <input type="submit" name="checkout" value="{{ 'cart.general.checkout' | t }}" class="btn auto-full-width" />
+                          </form>
+                        </div>
+                      </li>
+                    </ul>
+                    {% endif %}
+                  </span>
+                </li>
+                {% if shop.customer_accounts_enabled %}
+                <li class="account"{% if customer %} role="menuitem" aria-haspopup="true" aria-expanded="false"{% endif %}>
+                  {% if customer %}
+                  <a href="{{ routes.account_url }}" title="{{ 'layout.customer.account' | t }}" role="button" aria-label="{{ 'layout.customer.account' | t }}" aria-expanded="false" aria-haspopup="true"><span class="icon icon-user"></span></a>
+                  <ul class="text-right account-dropdown" role="menu" aria-hidden="true" aria-label="{{ 'layout.general.nav_sub' | t }}">
+                    <li role="menuitem"><a href="{{ routes.account_url }}" title="{{ 'layout.customer.account' | t }}">{{ 'layout.customer.greeting' | t }} {{ customer.first_name }}</a></li>
+                    <li role="menuitem"><a href="{{ routes.account_url }}" title="{{ 'layout.customer.account' | t }}">{{ 'layout.customer.account' | t }}</a></li>
+                    <li role="menuitem"><a href="{{ routes.account_logout_url }}" title="{{ 'layout.customer.log_out' | t }}">{{ 'layout.customer.log_out' | t }}</a></li>
+                  </ul>
+                  {% else %}
+                  <a href="{{ routes.account_login_url }}" title="{{ 'layout.customer.log_in' | t }}" class="relative" role="button" aria-label="{{ 'layout.customer.log_in' | t }}"><span class="icon icon-user"></span></a>
+                  {% endif %}
+                </li>
+                {% endif %}
+
+                {% for locale in shop.published_locales %}
+                {% if locale.name == request.locale.name %}
+                {% capture locale_name %}{{ locale.iso_code | upcase }}{% endcapture %}
+                {% endif %}
+                {% endfor %}
+
+                {% if shop.published_locales.size > 1 and section.settings.enable_locales and locale_name != blank %}
+                <li class="account currencies" role="menuitem" aria-haspopup="true" aria-expanded="false">
+                  <a class="currencies" href="javascript:void(0)" title="{{ 'general.language.locale' | t }}" data-multi="locale"><small>{{ locale_name }}</small></a>
+                  <ul class="text-left account-dropdown" aria-hidden="true" aria-label="{{ 'layout.general.nav_sub' | t }}">
+                    {% for locale in shop.published_locales %}
+                    <li><a href="javascript:void(0)" data-multi="locale" data-code="{{ locale.iso_code }}" data-footer_symbol="{{ locale.endonym_name }}" data-header_symbol="{{ locale.iso_code | upcase }}" title="{{ locale.endonym_name }}"><small>{{ locale.endonym_name }}</small></a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+                {% endif %}
+                {% if shop.enabled_currencies.size > 1 and section.settings.enable_multiple_currencies %}
+                <li class="account currencies" role="menuitem" aria-haspopup="true" aria-expanded="false">
+                  <a class="currencies" href="javascript:void(0)" title="{{ 'general.language.currency' | t }}" data-multi="currency">{% for currency in shop.enabled_currencies %}{% if currency == cart.currency %}<small>{{ currency.iso_code }}</small> {{ currency.symbol }}{% endif %}{% endfor %}</a>
+                  <ul class="text-left account-dropdown" role="menu" aria-hidden="true" aria-label="{{ 'layout.general.nav_sub' | t }}">
+                    {% for currency in shop.enabled_currencies %}
+                    <li><a href="javascript:void(0)" data-multi="currency" data-code="{{ currency.iso_code }}" data-footer_symbol="{{ currency.iso_code }} {{ currency.symbol }}" data-header_symbol="{{ currency.iso_code }} {{ currency.symbol }}" title="{{ currency.iso_code }} {{ currency.symbol }}"><small>{{ currency.iso_code }}</small> {{ currency.symbol }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+                {% endif %}
+
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-searchbar search open-slide">
+        <div class="container full clearfix">
+          <div class="twelve">
+            {% assign search_class = 'header text-center' %}
+            {% include 'search' %}
+          </div>
+        </div>
+      </div>
+
+      <div class="header sticky-navigation {% if section.settings.include_bar_border %}include-border {% endif %}relative clearfix">
+
+        <div class="sticky-navigation-container open-container">
+          <div id="header-navigation" class="header-navigation{% if template == 'index' %} home{% endif %}">
+            <div class="header-navigation-width hidden">{%- for link in linklists[section.settings.menu].links -%}<span>{{ link.title }}</span>{%- endfor -%}</div>
+            <div class="container full clearfix">
+              <div class="twelve">
+                <div class="relative">    
+                  <div class="table {{ section.settings.menu_alignment }}-width clearfix">
+                    <div class="logo table-cell">
+                      {% if section.settings.logo != blank %}
+                      <a href="{{ shop.url }}" title="{{ shop.name }}" class="img-align">              
+                        {% if section.settings.logo != blank %}
+                        {%- capture image_size -%}{{ section.settings.logo_max_width }}x{%- endcapture -%}
+                        <img src="{{ section.settings.logo | img_url: image_size }}"
+                             srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x"
+                             alt="{% if template == '404' %}{{ 'general.404.title' | t }} {% else %}{{ page_title }} {% if current_tags %}{%- capture meta_tags -%}{%- for tag in current_tags -%}{{ tag | split: '_' | last }} {%- endfor -%}{%- endcapture -%}{{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %}| {{ 'general.meta.page' | t: page: current_page }} {% endif %}{% endif %}{% unless page_title contains shop.name or template == 'password' %}| {{ shop.name }}{% endunless %}">
+                        {% else %}
+                        {{ shop.name }}
+                        {% endif %}
+                      </a>
+                      {% else %}
+                      <a href="{{ shop.url }}" title="{{ shop.name }}" class="sticky-text">{{ shop.name }}</a>
+                      {% endif %}
+                    </div>
+                    <div class="main-menu table-cell">
+                      <nav aria-Label="{{ 'layout.general.nav_main' | t }}">
+                        <div class="customer-links">
+                          <ul role="menubar" aria-Label="{{ 'layout.general.nav_customer' | t }}">
+                            <li role="menuitem"><a href="javascript:void(0)" class="open open-{{ section.id }}" title="{{ 'general.search.title' | t }}" role="button"><span class="icon icon-search" aria-label="{{ 'general.search.title' | t }}"></span></a></li>
+                            <li id="cart-count-mobile" class="cart-count cart-info" role="menuitem">
+                              {%- assign cartCount = cart.item_count | downcase -%}
+                              <a href="{{ routes.cart_url }}" title="{{ 'layout.cart.title' | t }}" role="button" aria-label="{{ 'layout.cart.title' | t }}"><span><span class="icon icon-cart relative"></span><span class="cartCountSelector size-{{ cartCount | size }}{% if cart.item_count < 1 %} hidden{% endif %}">{{ cart.item_count }}</span></span></a>
+                            </li>
+                            {% if shop.customer_accounts_enabled %}
+                            <li class="account" role="menuitem">
+                              {% if customer %}
+                              <a href="{{ routes.account_url }}" title="{{ 'layout.customer.account' | t }}" role="button" aria-label="{{ 'layout.customer.account' | t }}"><span class="icon icon-user"></span></a>
+                              {% else %}
+                              <a href="{{ routes.account_login_url }}" title="{{ 'layout.customer.log_in' | t }}" class="relative" role="button" aria-label="{{ 'layout.customer.log_in' | t }}"><span class="icon icon-user"></span></a>
+                              {% endif %}
+                            </li>
+                            {% endif %}
+                            <li role="menuitem"><a class="toggleMenu" href="#" aria-controls="responsiveMenu" aria-expanded="false" role="button" aria-label="{{ 'layout.navigation.menu' | t }}"><span class="icon icon-menu relative"></span></a></li>
+                          </ul>
+                        </div>
+                        <!-- Breakpoint is 583px by default, 600 - 17 to accomodate scrollbar -->
+                        <ul id="responsiveMenu" class="responsiveMenu text-{{ section.settings.menu_alignment }}" data-maxmobilewidth="600" data-parentlinkdoubleswitch="0" role="menubar" aria-hidden="false">
+
+                          {% if shop.customer_accounts_enabled and customer %}
+                          <span class="account">
+                            {% if customer %}
+                            <a href="{{ routes.account_url }}" title="{{ 'layout.customer.account' | t }}" role="button" aria-label="{{ 'layout.customer.account' | t }}"><span class="icon icon-user"></span> {{ 'layout.customer.greeting' | t }} {{ customer.first_name }}</a><span class="separator"></span><a href="{{ routes.account_url }}" title="{{ 'layout.customer.account' | t }}">{{ 'layout.customer.account' | t }}</a><span class="separator"></span><a href="{{ routes.account_logout_url }}" title="{{ 'layout.customer.log_out' | t }}">{{ 'layout.customer.log_out' | t }}</a>
+                            {% else %}
+                            <a href="{{ routes.account_login_url }}" title="{{ 'layout.customer.log_in' | t }}" class="relative" role="button" aria-label="{{ 'layout.customer.log_in' | t }}"><span class="icon icon-user"></span></a>
+                            {% endif %}
+                          </span>
+                          {% endif %}
+
+                          {% if shop.published_locales.size > 1 and section.settings.enable_locales or shop.enabled_currencies.size > 1 and section.settings.enable_multiple_currencies %}
+                          {% form 'localization', id: "localization_form-header", class: "currency-selector" %}
+                          
+                          {% if shop.published_locales.size > 1 and section.settings.enable_locales %}                          
+                          <span class="account currencies drop-down form">                          
+                            <select name="locale_code">
+                              {% if locale_name == blank %}<option value="" selected="true">{{ 'general.language.change' | t }}</option>{% endif %}
+                              {% for locale in form.available_locales %}
+                              <option value="{{ locale.iso_code }}"{% if locale.iso_code == form.current_locale.iso_code %} selected="true"{% endif %}>{{ locale.endonym_name }}</option>
+                              {% endfor %}
+                            </select>
+                          </span>
+                          {% endif %}
+
+                          {% if shop.enabled_currencies.size > 1 and section.settings.enable_multiple_currencies %}
+                          <span class="account currencies drop-down form">                          
+                            <select name="currency_code">
+                              {% for currency in form.available_currencies %}
+                              <option value="{{ currency.iso_code }}"{% if currency.iso_code == form.current_currency.iso_code %} selected="true"{% endif %}>{{ currency.iso_code }} {{ currency.symbol }}</option>
+                              {% endfor %}
+                            </select>
+                          </span>
+                          {% endif %}
+
+                          {% endform %} 
+                          {% endif %}
+
+                          {% for link in linklists[section.settings.menu].links %}
+                          {%- capture cycleIndex -%}{{ link.handle }}-{{ forloop.index }}{%- endcapture -%}
+                          {%- assign sub_links = false -%}
+                          {%- assign sub_sub_links = false -%}
+                          {% for sub_link in link.links %}                      
+                          {% if link.links.size > 2 %}{%- assign sub_links = true -%}{% endif %}
+                          {% for sub_sub_link in sub_link.links %}                     
+                          {%- assign sub_sub_links = true -%}
+                          {% endfor %}
+                          {% endfor %}
+
+                          <li class="parent-level{% if link.links != blank %} parent has-dropdown{% unless sub_links and sub_sub_links %} relative{% endunless %} plus-{{ section.settings.menu_alignment }}{% endif %}{% if forloop.first %} first{% elsif forloop.last %} last{% endif %}" role="menuitem"{% if link.links != blank %} aria-haspopup="true"{% endif %}>
+                            <a href="{{ link.url }}" class="parent{% if link.active %} active{% endif %}"{% if link.active %} aria-current="page"{% endif %} title="{{ link.title }}" tabindex="0"><span>{{ link.title }}</span></a>
+
+                            {%- assign has_image = false -%}
+                            {%- assign link_collection = false -%}
+
+                            {% if link.type == 'collection_link' or link.type == 'catalog_link' %}
+                            {%- assign link_collection = true -%}
+                            {%- assign link_handle = link.url | split: '/' | last -%}
+                            {%- assign collection = collections[link_handle] -%}
+                            {%- capture imgID -%}{{ collection.handle }}-{{ forloop.index }}{%- endcapture -%}
+                            {%- assign id = imgID -%}
+
+                            {% if section.settings.use_image %}                        
+                            {% if section.settings.use_product_image %}
+                            {%- assign img_src = collection.products.first.featured_media.preview_image -%}
+                            {% elsif section.settings.use_product_image == false %}
+                            {% if collection.image %}
+                            {%- assign img_src = collection.image -%}
+                            {% else %}
+                            {%- assign img_src = collection.products.first.featured_media.preview_image -%}
+                            {% endif %}
+                            {% endif %}
+                            {%- assign has_image = true -%}                        
+                            {% endif %}
+
+                            {% endif %}
+
+                            {% if section.settings.use_image %}
+                            {%- capture alt -%}{{ link.title }}{%- endcapture -%}
+                            {%- assign bg_size = 'cover' -%}
+                            {%- assign size = 200 -%}
+                            {%- assign img_size = '1x' -%}
+                            {% endif %}
+
+                            {% if link.links != blank %}
+
+                            {% if sub_links and sub_sub_links %}
+                            {%- assign use_image = true -%}
+                            {% else %}
+                            {%- assign use_image = false -%}
+                            {% endif %}
+
+                            <ul class="parent-level-ul {% if sub_links and sub_sub_links %}mega text-left{% else %}dropdown {% if sub_sub_links %}semi {% endif %}text-{{ section.settings.menu_alignment }}{% endif %}" role="menu" aria-hidden="true">
+                              {% if has_image and use_image %}
+                              <span class="three">
+                                <li class="twelve negative-left negative-right">
+                                  <div class="lazypadding">
+                                    {% if img_src != blank %}{% include 'image-background' %}{% else %}{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}{%endif %}
+                                  </div>                                             
+                                </li>
+                              </span>
+                              {% endif %}
+                              <span class="{% if has_image and use_image %}has_image_{{ section.settings.menu_alignment }} {% else %}has_no_image_{{ section.settings.menu_alignment }} {% endif %}{% if sub_links and sub_sub_links and link_collection or has_image and use_image %}{% if has_image %}eight right{% else %}twelve{% endif %}{% endif %}">
+                                {% for sub_link in link.links %}
+                                <li class="child-level{% if sub_link.links != blank %} has-dropdown{% endif %} three{% if forloop.first %} first{% elsif forloop.last %} last{% endif %}" role="menuitem"{% if sub_link.links != blank %} aria-haspopup="true"{% endif %}>
+                                  <a href="{{ sub_link.url }}" class="child{% if sub_link.links != blank %} parent{% endif %}{% if sub_link.active %} active{% endif %}"{% if sub_link.active %} aria-current="page"{% endif %} title="{{ sub_link.title }}" tabindex="0"><span>{{ sub_link.title }}</span></a>
+                                  {% if sub_link.links != blank %}
+                                  <ul role="menu" aria-hidden="true">
+                                    {% for sub_sub_link in sub_link.links %}
+                                    <li class="grand-child-level" role="menuitem">
+                                      <a href="{{  sub_sub_link.url }}" class="grand-child{% if sub_sub_link.active %} active{% endif %}"{% if sub_sub_link.active %} aria-current="page"{% endif %} title="{{  sub_sub_link.title }}" tabindex="0">{{  sub_sub_link.title }}</a>
+                                    </li>
+                                    {% endfor %}
+                                  </ul>
+                                  {% endif %}
+                                </li>
+                                {% endfor %}
+                              </span>                        
+                            </ul>
+                            {% endif %}    
+                          </li>
+                          {% endfor %}
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="header-searchbar search open-slide">
+            <div class="container full clearfix">
+              <div class="twelve">
+                {% assign search_class = 'header text-center' %}
+                {% include 'search' %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </header>
+</div>
+
+{% if template == 'index' or template == 'page' %}
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    {% if shop.description != blank %}"description": {{ shop.description | json }},{% endif %}
+    {% if section.settings.logo != blank %}"logo": {%- capture image_size -%}{{ section.settings.logo_max_width }}x{%- endcapture -%}{{ section.settings.logo | img_url: image_size | prepend:'https:' | json }},{% endif %}
+    "url": {{ shop.url | append: page.url | json }},
+    "contactPoint": [{
+      "@type": "ContactPoint",
+      "telephone": {{ shop.phone | json }},
+      "contactType": "Customer service"
+  	}]{% if settings.social_twitter_link != blank or settings.social_facebook_link != blank or settings.social_pinterest_link != blank or settings.social_instagram_link != blank or settings.social_tumblr_link != blank or settings.social_youtube_link != blank or settings.social_vimeo_link != blank %},
+    "sameAs": [
+      {{ settings.social_twitter_link | json }},
+      {{ settings.social_facebook_link | json }},
+      {{ settings.social_pinterest_link | json }},
+      {{ settings.social_instagram_link | json }},
+      {{ settings.social_tumblr_link | json }},
+      {{ settings.social_youtube_link | json }},
+      {{ settings.social_vimeo_link | json }}
+    ]
+    {% endif %}
+  }
+</script>
+{% endif %}
+
+{% if template == 'index' %}
+{% assign potential_action_target = shop.url | append: routes.search_url | append: "?q={search_term_string}" %}
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": {{ shop.name | json }},
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {{ potential_action_target | json }},
+      "query-input": "required name=search_term_string"
+    },
+   "url": {{ shop.url | json }}
+  }
+</script>
+{% endif %}
+
+<style>
+  .customer_color_scheme,
+  .customer_color_scheme .account:before {
+    background: {{ section.settings.customer_background_color }};
+    color: {{ section.settings.customer_font_color }};
+  }
+  .mobile-only.no-scroll .customer_color_scheme {
+    visibility:hidden;
+  }
+  .customer-bullets ul li.borders p,
+  .customer_color_scheme a {
+    color: {{ section.settings.customer_font_color }};
+  }
+  .customer_color_scheme a:hover,
+  .customer_color_scheme a:focus, {
+    color: {{ section.settings.customer_hover_font_color }};
+  }
+  .customer_color_scheme .customer-links a,
+  .customer_color_scheme .customer-links span.icon {
+    color: {{ section.settings.customer_font_color }};
+  }
+  .customer_color_scheme .customer-links li:hover,
+  .customer_color_scheme .customer-links li:hover a,
+  .customer_color_scheme .customer-links li:hover span.icon,
+  .customer_color_scheme .customer-links li:hover.account:before,
+  .customer_color_scheme .customer-links li:focus,
+  .customer_color_scheme .customer-links li:focus a,
+  .customer_color_scheme .customer-links li:focus span.icon,
+  .customer_color_scheme .customer-links li:focus.account:before {
+    {% if section.settings.customer_font_color == '#ffffff' %}
+    background: {{ section.settings.customer_font_color }};
+    color: {{ section.settings.customer_background_color }};
+    {% else %}
+    background: #fff;
+    color: {{ section.settings.customer_hover_font_color }};
+    {% endif %}
+  }
+  #cart-dropdown {
+    background: #fff;
+  }
+  .header-navigation nav .responsiveMenu > li > a {
+    font-size: {{ section.settings.menu_size }}px;
+  }
+  .header-navigation .header-navigation-width span  {
+    font-size: {{ section.settings.menu_size | plus: 2 }}px;
+  }
+  {% if section.settings.use_sticky %}
+  #shopify-section-header {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+  }
+  {% endif %}
+</style>
+
+{% schema %}
+  {
+    "name": "Header",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Customer Bar"
+      },
+      {
+        "type": "color",
+        "id": "customer_background_color",
+        "label": "Background color"
+      },
+      {
+        "type": "color",
+        "id": "customer_font_color",
+        "label": "Text color"
+      },
+      {
+        "type": "color",
+        "id": "customer_hover_font_color",
+        "label": "Text hover"
+      },
+      {
+        "type": "checkbox",
+        "id": "include_customerbar_border",
+        "label": "Show border",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_locales",
+        "label": "Show language selector",
+        "default": true,
+        "info": "To add a language, go to your [language settings.](\/admin\/settings\/languages)"
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_multiple_currencies",
+        "label": "Show currency selector",
+        "default": true,
+        "info": "To add a currency, go to your [currency settings.](\/admin\/settings\/payments)"
+      },
+      {
+        "type": "header",
+        "content": "Logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Image"
+      },
+      {
+        "type": "range",
+        "id": "logo_max_width",
+        "min": 40,
+        "max": 250,
+        "step": 10,
+        "unit": "px",
+        "label": "Max logo width",
+        "default": 130
+      },
+      {
+        "type": "header",
+        "content": "Navigation"
+      },
+      {
+       "type": "link_list",
+       "label": "Menu",
+       "id": "menu",
+       "default": "main-menu"
+      },
+      {
+        "type": "range",
+        "id": "menu_size",
+        "min": 14,
+        "max": 18,
+        "step": 2,
+        "unit": "px",
+        "label": "Link size",
+        "default": 14
+      },
+      {
+        "type": "select",
+        "id": "menu_alignment",
+        "label": "Position",
+        "default": "right",        
+        "options": [
+          {
+            "value": "right",
+            "label": "Right"
+          },
+          {
+            "value": "left",
+            "label": "Left"
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "use_sticky",
+        "label": "Enable sticky header",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "use_image",
+        "label": "Show image",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "use_product_image",
+        "label": "Show first product image",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "include_bar_border",
+        "label": "Show border",
+        "default": true
+      }
+    ],
+    "blocks": [
+      {
+        "type": "info_bullets",
+        "name": "Promotion",
+        "limit": 2,
+        "settings": [
+          {
+            "type": "richtext",
+            "label": "Text",
+            "id": "info_bullets",
+	    	"default": "<p>Add a promotion or highlight specials</p>"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
