@@ -1,0 +1,57 @@
+{% if settings.addthis != blank %}
+<div class="addthis_horizontal_follow_toolbox"></div>
+{% elsif settings.social_twitter_link != blank or settings.social_facebook_link != blank or settings.social_pinterest_link != blank or settings.social_instagram_link != blank or settings.social_tumblr_link != blank or settings.social_snapchat_link != blank or settings.social_youtube_link != blank or settings.social_vimeo_link != blank %}
+<div class="socials{{ social-class }}">
+  <ul>
+    {% if settings.social_facebook_link != blank %}
+    <li>
+      <a href="{{ settings.social_facebook_link | escape }}" target="_blank" role="button" aria-label="{{ 'general.social.facebook' | t }}">
+        <span class="icon icon-facebook text-center"></span>
+      </a>
+    </li>
+    {% endif %}
+    {% if settings.social_twitter_link != blank %}
+    <li>
+      <a href="{{ settings.social_twitter_link | escape }}" target="_blank" role="button" aria-label="{{ 'general.social.twitter' | t }}">
+        <span class="icon icon-twitter text-center"></span>
+      </a>
+    </li>
+    {% endif %}
+    {% if settings.social_pinterest_link != blank %}
+    <li>
+      <a href="{{ settings.social_pinterest_link | escape }}" target="_blank" role="button" aria-label="{{ 'general.social.pinterest' | t }}">
+        <span class="icon icon-pinterest text-center"></span>
+      </a>
+    </li>
+    {% endif %}
+    {% if settings.social_instagram_link != blank %}
+    <li>
+      <a href="{{ settings.social_instagram_link | escape }}" target="_blank" role="button" aria-label="{{ 'general.social.instagram' | t }}">
+        <span class="icon icon-instagram text-center"></span>
+      </a>
+    </li>
+    {% endif %}
+    {% if settings.social_tumblr_link != blank %}
+    <li>
+      <a href="{{ settings.social_tumblr_link | escape }}" target="_blank" role="button" aria-label="{{ 'general.social.tumblr' | t }}">
+        <span class="icon icon-tumblr text-center"></span>
+      </a>
+    </li>
+    {% endif %}
+    {% if settings.social_youtube_link != blank %}
+    <li>
+      <a href="{{ settings.social_youtube_link | escape }}" target="_blank" role="button" aria-label="{{ 'general.social.youtube' | t }}">
+        <span class="icon icon-youtube text-center"></span>
+      </a>
+    </li>
+    {% endif %}
+    {% if settings.social_vimeo_link != blank %}
+    <li>
+      <a href="{{ settings.social_vimeo_link | escape }}" target="_blank" role="button" aria-label="{{ 'general.social.vimeo' | t }}">
+        <span class="icon icon-vimeo text-center"></span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}

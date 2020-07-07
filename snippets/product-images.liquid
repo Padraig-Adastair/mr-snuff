@@ -1,0 +1,103 @@
+{%- assign featured_media = product.selected_or_first_available_variant.featured_media | default: product.featured_media -%}
+<div id="main-product-image-{{ section.id }}" 
+     class="featured-image featured-image-div-{{ section.id }} main-image-{{ section.id }} text-center"
+     data-product-single-media-group >
+  {% for media in product.media %}
+  {%- capture image_alt -%}{{ product.title }} Background{%- endcapture -%}
+  {%- assign linkCt1 = 0 -%}
+  {%- assign linkCt = 0 -%}
+
+  {% if media.alt == image_alt %}
+  {%- capture linkCt1 -%}{{ linkCt | plus:1 }}{%- endcapture -%}  
+  {% endif %} 
+  {%- assign total_size = product.media.size | minus: linkCt1 -%}  
+
+  {% unless media.alt == image_alt %}  
+  <div id="variant-image-{{ media.id }}" 
+       class="variant-image variant-image-{{ section.id }} relative{% unless media == featured_media %} hidden{% endunless %}"
+       {% unless media == featured_media %} aria-hidden="true"{% endunless %} 
+       data-image-id="{{ media.id }}"
+       {% if media.media_type == 'video' or media.media_type == 'external_video' %} data-product-media-type-video data-enable-video-looping="{{ section.settings.loop_enable }}"{% endif %}
+       {% if media.media_type == 'model' %} data-product-media-type-model{% endif %}
+       {% if media.media_type == 'external_video' %} data-video-id="{{ media.external_id }}"{% endif %}
+       data-product-single-media-wrapper
+       data-media-id="{{ section.id }}-{{ media.id }}"
+       tabindex="-1">   
+    {%- assign id = media.id -%}
+    {%- assign img_src = media -%}
+    {%- assign size = 600 -%}
+    {%- capture alt -%}{{ media.alt | escape }}{%- endcapture -%}
+    {% case media.media_type %}
+    {% when 'image' %}
+    <div class="{% if section.settings.zoom_enable or template == 'product.quick' and settings.zoom_enable %}easyzoom easyzoom--overlay is-ready {% endif %}clearfix">
+      {% if section.settings.zoom_enable or template == 'product.quick' and settings.zoom_enable %}<a href="{{ media | img_url: '1024x1024', scale: 2 }}" rel="noopener noreferrer" title="{{ alt }}">{% endif %}
+        {% include 'image-load' %}  
+      {% if section.settings.zoom_enable or template == 'product.quick' and settings.zoom_enable %}</a>{% endif %}
+    </div>
+    {% when 'external_video' %}
+    {{ media | external_video_tag }} 
+    {% when 'model' %}
+    <div class="relative media-viewer text-left">
+      {{ media | model_viewer_tag: reveal: 'interaction', toggleable: true, data-model-id: media.id, image_size: '600x600' }}
+    </div>
+    <button class="btn auto-full-width modelthreed hidden"
+            aria-label="{{ 'products.general.media_view' | t }}"
+            data-shopify-xr
+            data-shopify-model3d-id="{{ media.id }}"
+            data-shopify-title="{{ product.title | escape }}"
+            data-shopify-xr-hidden
+            ><span class="icon icon-threed"></span>&nbsp;&nbsp;{{ 'products.general.media_view' | t }}</button>
+    {% when 'video' %}
+    <div class="relative">
+      {% if section.settings.loop_enable %}
+      {% assign loop_enable = true %}
+      {% else %}
+      {% assign loop_enable = false %}
+      {% endif %}      
+      {{ media | video_tag: controls: true, image_size: '600x600' }}
+      {% comment %}{{ media | video_tag: controls: true, hideControls: false, autoplay: true, loop: loop_enable }}{% endcomment %}
+    </div>
+    {% else %}
+    {{ media | media_tag: image_size: '600x600' }}
+    {% endcase %}
+  </div>
+  {% endunless %}
+  {% endfor %}
+</div>
+
+{% if total_size > 1 %}
+<div{% if total_size > 4 %} id="thumbnails-{{ section.id }}"{% endif %} class="swiper-container {% if total_size < 5 %}table-center negative-left negative-right {% endif %}thumbnails thumbs">
+  <div class="{% if total_size > 4 %}swiper-wrapper swiper-wrapper-{{ section.id }}{% else %}center{% endif %}">
+    {% for media in product.media %}
+    {%- capture id -%}thumb-{{ media.id }}{%- endcapture -%}
+    {%- capture image_alt -%}{{ product.title }} Background{%- endcapture -%}
+    {% unless media.alt == image_alt %}
+    <div class="{% if total_size > 4 %}swiper-slide{% else %}three mobile{% endif %} thumb-image-{{ section.id }} image" data-image-id="{{ media.id }}">  
+      <div{% if settings.title_align %} class="title-align"{% endif %}>
+        <div class="relative">
+          {%- assign img_src = media.preview_image -%}
+          {%- assign size = 150 -%}
+          {%- capture alt -%}{{ media.alt | escape }}{%- endcapture -%}
+          <a title="{{ alt }}" class="img-align" tabindex="0">
+            {% include 'image-load' %}
+            {% case media.media_type %}
+            {% when 'external_video' %}
+            <span class="icon thumbnail icon-play"></span>
+            {% when 'model' %}
+            <span class="icon thumbnail icon-threed"></span>
+            {% when 'video' %}
+            <span class="icon thumbnail icon-play"></span>
+            {% endcase %}
+          </a>  
+        </div>
+      </div>
+    </div>
+    {% endunless %}
+    {% endfor %}
+  </div>
+  <div id="swiper-pagination-thumbs" class="swiper-pagination relative hidden">
+    <div id="swiper-button-prev-thumbs-{{ section.id }}" class="tabindex swiper-button-prev thumbs icon icon-chevron-left" role="button" aria-label="{{ 'products.general.previous' | t }}"></div>
+    <div id="swiper-button-next-thumbs-{{ section.id }}" class="tabindex swiper-button-next thumbs icon icon-chevron-right" role="button" aria-label="{{ 'products.general.next' | t }}"></div>
+  </div>
+</div>
+{% endif %}

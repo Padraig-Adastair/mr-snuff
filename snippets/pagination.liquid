@@ -1,0 +1,11 @@
+{% if paginate.previous.is_link %}
+<a href="{{ paginate.previous.url }}" class="prev"></a>
+<span class="separator" aria-hidden="true"></span>
+{% endif %}
+
+{{ 'collections.general.current_page' | t: current: paginate.current_page, total: paginate.pages }}
+
+{% if paginate.next.is_link %}
+<span class="separator" aria-hidden="true"></span>
+<a href="{{ paginate.next.url }}" class="next"></a>
+{% endif %}

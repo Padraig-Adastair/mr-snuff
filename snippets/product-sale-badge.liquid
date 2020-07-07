@@ -1,0 +1,9 @@
+{%- if settings.badge_enable and product.available and product.compare_at_price > product.price -%}
+<div class="badge"><span>{{ 'products.product.savings' | t }}<br/>
+  {%- if settings.badge_percentage_enable -%}  
+  {{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | append: '%' }}
+  {%- else -%}
+  {{ product.compare_at_price | minus: product.price | money }}
+  {%- endif -%}
+  </span></div>
+{%- endif -%}

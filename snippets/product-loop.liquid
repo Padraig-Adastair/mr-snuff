@@ -1,0 +1,106 @@
+<div class="product animate{% if forloop.last %} last{% endif %} {% if section.settings.sub_text_alignment %}{{ section.settings.sub_text_alignment }}{% else %}text-left{% endif %}{% if settings.borders_enable %} borders{% endif %}{{ swiper-slide }}{% if template == 'index' %} swiper-slide{% if section.settings.use_slider %} three{% else %} two-half{% cycle cycleIndex: ' first', '', '', '', '' %} animate-loop-{{ forloop.index0 }}{% endif %}{% elsif template == 'product' or template == '404' %} three{% cycle cycleIndex: ' first', '', '', '' %} animate-loop-{{ forloop.index0 }}{% else %}{% if menu_count > 0 or filter_count > 0 or vendor_count > 0 %} four{% cycle cycleIndex: ' first', '', '' %}{% else %} three{% cycle cycleIndex: ' first', '', '', '' %}{% if section.settings.show_product_recommendations %} animate animate-loop-{{ forloop.index0 }}{% endif %}{% endif %}{% endif %}{% if settings.quick_collection_hover %}{% unless section.settings.layout == 'row' %} hover relative{% endunless %}{% endif %}">
+  <div class="product-border{% if settings.borders_enable and section.settings.include_color != 'color-none' %} product-border-background{% endif %} relative">
+    
+    {% include 'product-sale-badge' %}
+        
+    {%- if template == 'collection' and canon -%}
+    
+    {%- assign prod_opt_1 = product.options[0] | handleize -%}
+    {%- assign prod_opt_2 = product.options[1] | handleize -%}
+    {%- assign prod_opt_3 = product.options[2] | handleize -%}
+    
+    {%- for variant in product.variants -%}
+
+    {%- if prod_opt_1 contains var_color and canon contains prod_opt_1 -%}
+    {%- assign var_opt = variant.option1 | handleize -%}
+    {%- elsif prod_opt_2 contains var_color and canon contains prod_opt_2 -%}
+    {%- assign var_opt = variant.option2 | handleize -%}
+    {%- elsif prod_opt_3 contains var_color and canon contains prod_opt_3 -%}
+    {%- assign var_opt = variant.option3 | handleize -%}
+    {%- else -%}
+    {%- assign var_opt = 'Default' -%}
+    {%- endif -%}
+    
+    {%- if canon contains var_opt -%}
+    {%- if variant.image -%}
+    {%- assign img_src = variant.featured_media.preview_image -%}
+    {%- else -%}
+    {%- assign img_src = product.featured_media.preview_image -%}
+    {%- endif -%}
+    {%- break -%}
+    {%- else -%}
+    {%- assign img_src = product.featured_media.preview_image -%}
+    {%- endif -%}
+    
+    {%- endfor -%}
+    
+    {%- else -%}
+    {%- assign img_src = product.featured_media.preview_image -%}
+    {%- endif -%}
+    
+    {% if product.media.size > 0 %} 
+    <div class="product-thumb{% if settings.image_hover and product.media.size > 1 and canon == blank %} enable-thumb-hover{% endif %}{% if settings.title_align %} title-align{% endif %}">
+      <div class="relative">
+        <a href="{{ product.url | within: collection }}" title="{{ 'layout.general.buy' | t }} {{ product.title }}" class="img-align{% if settings.image_hover and product.media.size > 1 %} product-thumb-load{% endif %}">
+          {%- capture id -%}{{ product.featured_media.id }}{{ section.id }}{{ block.id }}{%- endcapture -%}
+          {%- assign size = 360 -%}
+          {%- capture alt -%}{{ product.title | escape }}{%- endcapture -%}
+          {% include 'image-load' %}
+        </a>
+        {% if settings.image_hover and product.media.size > 1 and canon == blank %} 
+        <a href="{{ product.url | within: collection }}" title="{{ 'layout.general.buy' | t }} {{ product.title }}" class="img-align product-thumb-hover">
+          {%- capture id -%}{{ product.media[1].id }}{{ section.id }}{{ block.id }}{%- endcapture -%}
+          {%- assign img_src = product.media[1].preview_image -%}
+          {%- assign size = 360 -%}
+          {%- capture alt -%}{{ product.title | escape }}{%- endcapture -%}
+          {% include 'image-load' %}
+        </a>
+        {% endif %}
+        {% if settings.quick_collection_hover %}{% unless section.settings.layout == 'row' %}{% include 'product-loop-buttons'%}{% endunless %}{% endif %}
+      </div>
+    </div>
+    {% endif %}
+    <div class="product-details">      
+      <div class="product-title"><h5><a href="{{ product.url | within: collection }}" title ="{{ product.title }}">{{ product.title }}</a></h5></div> 
+      <div class="product-price">
+        {%- assign variant_free = false -%}
+        {%- assign variant_slash = 'true' -%}
+        {% if product.price_min > 0 %} 
+        {% if product.price_varies %} {% comment %} {{ 'products.product.from' | t }} {% endcomment %}{% endif %} <!-- commentd by mlveda -->
+        {%- assign variant = product.variants | sort: 'price' | first -%}
+        <h6>{{ product.price | money }}{% if product.compare_at_price > product.price %} | <del>{{ product.compare_at_price | money }}</del>{% endif %}{% include 'product-unit-price' %}</h6>
+        {% else %}
+        {% if product.price_varies %}    
+        {%- assign variant = product.variants | sort: 'price' | last -%}
+        <h6>{{ 'products.product.free' | t }} - {{ product.price_max | money }}{%- assign variant_free = true -%}{% include 'product-unit-price' %}</h6>
+        {% else %}
+        <h6 style="display:none">{{ product.price | money }}</h6><h6>{{ 'products.product.free' | t }}</h6>
+        {% endif %}
+        {% endif %}
+      </div>
+      {% if settings.reviews_enable %}
+      <div class="reviews">
+        <!-- To add a new review app, install code between the comments -->
+        <span class="shopify-product-reviews-badge" data-id="{{ product.id }}"></span>
+        <!-- End comments -->
+      </div>
+      {% endif %}
+      {% if settings.vendor_enable %}
+      <p id="product-logistics-{{ product.id }}-{{ section.id }}{{ block.id }}" class="product-logistics{% unless settings.quick_collection_hover == false %} no-pad{% endunless %}">
+        <span class="vendors">
+          {%- assign product_vendor_handle = product.vendor | handle -%}
+          {% if collections[product_vendor_handle].handle == product_vendor_handle %}
+          {%- assign vendor_url = collections[product_vendor_handle].url -%}
+          {% else %}
+          {%- assign vendor_url = product.vendor | url_for_vendor -%}
+          {% endif %}
+          {{ product.vendor | link_to: vendor_url }}
+        </span>
+      </p>
+      {% endif %}
+      {% if settings.product_availability_enable and product.available == false and variant.incoming %}<p class="error-text"><small><span class="icon icon-bell"></span> {% if variant.next_incoming_date != blank %}{{ 'products.product.stock_in' | t }} {{ variant.next_incoming_date | date: '%b %e'  }}{% else %}{{ 'products.product.stock_soon' | t }}{% endif %}</small></p>{% endif %}
+      {% if settings.quick_collection_hover == false or section.settings.layout == 'row' or settings.quick_collection_hover and product.media.size == 0 %}{% include 'product-loop-buttons'%}{% endif %}
+    </div>
+
+  </div>
+</div>
